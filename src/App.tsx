@@ -1,11 +1,13 @@
+import React from 'react';
+import CitySearch from './components/CitySearch';
 import './App.css'
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div>
-      <h1>Weather App</h1>
+    <div style={{ padding: '2rem' }}>
+      <CitySearch />
     </div>
   );
-}
+};
 
 export default App;
