@@ -12,7 +12,7 @@ const CitySearch: React.FC = () => {
     try {
       const apiKey = import.meta.env.VITE_OPENWEATHER_KEY;
       const response = await fetch(
-        `http://api.openweathermap.org/geo/1.0/direct?q=lisbon&appid=${apiKey}`
+        `https://api.openweathermap.org/geo/1.0/direct?q=lisbon&appid=${apiKey}`
       );
 
       if (!response.ok) throw new Error('Network response was not ok');
