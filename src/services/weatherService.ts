@@ -74,6 +74,7 @@ const data = mockForecast as OpenWeatherForecastResponse;
 
 export const getWeatherForecast = async (city: string): Promise<Forecast> => {
   await new Promise((r) => setTimeout(r, 500));
+  void city;
 
   const list: ForecastItem[] = data.list.map(
     (item: OpenWeatherForecastItem): ForecastItem => ({
