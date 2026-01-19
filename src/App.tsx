@@ -1,10 +1,11 @@
 import React from 'react';
 import CitySearch from './components/CitySearch';
-import './App.css'
+import { GlobalStyle } from './styles/GlobalStyle';
 
 const App: React.FC = () => {
   return (
-    <div style={{ padding: '2rem' }}>
+    <div>
+      <GlobalStyle />
       <CitySearch />
     </div>
   );
