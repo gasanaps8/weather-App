@@ -1,20 +1,23 @@
 import styled from 'styled-components';
 import { Field, Form } from 'formik';
+import { breakpoints } from '../styles/GlobalStyle';
 
 export const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     max-width: 900px;
     margin: 0 auto;
     padding: 2rem 1rem;
-    background: ${(props) => props.theme.colors.blue};
-    border: 1px solid ${(props) => props.theme.colors.lighterBlue};
-    border-radius: 6px;
+    align-items: center;
 `;
 
-export const Title = styled.h1`
-    text-align: center;
-    font-size: 2.5em;
-    margin-bottom: 2rem;
-    color: ${(props) => props.theme.colors.textPrimary};
+export const LogoImg = styled.img`
+    width: 120px;
+    height: auto;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto 1rem auto;
 `;
 
 export const GeneralInfoContainer = styled.div`
@@ -36,17 +39,17 @@ export const GeneralInfo = styled.h2`
 export const Button = styled.button`
     display: block;
     padding: 0.75rem 2rem;
-    border-radius: 999px;
-    border: none;
-    background: ${(props) => props.theme.colors.lightBlue};;
-    color: ${(props) => props.theme.colors.textSecondary};;
+    border-radius: 8px;
+    border: 1px solid ${({theme}) => theme.colors.lightBlue};
+    background-color: ${({theme}) => theme.colors.lighterBlue};
+    color: ${({theme}) => theme.colors.textSecondary};
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s ease;
 
     &:hover:not(:disabled) {
-        background: ${(props) => props.theme.colors.lighterBlue};;
+        background: ${({theme}) => theme.colors.lighterBlue};
     }
 
     &:disabled {
@@ -60,11 +63,14 @@ export const FormContainer = styled(Form)`
     flex-direction: column;
     gap: 4px;
     margin-bottom: 16px;
+    width: 70%;
+    justify-content: center;
 `;
 
 export const InputRow = styled.div`
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
 `;
 
@@ -73,20 +79,22 @@ export const CityField = styled(Field)`
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 1rem;
-    flex: 1; // takes remaining space
     outline: none;
+    min-width: 80px;
+    max-width: 700px;
+    width: 100%;
 
     &:focus {
-        border-color: ${(props) => props.theme.colors.blue};
-        box-shadow: 0 0 4px ${(props) => props.theme.colors.lightBlue};
+        border-color: ${({theme}) => theme.colors.blue};
+        box-shadow: 0 0 4px ${({theme}) => theme.colors.lightBlue};
     }
 `;
 
 export const SubmitButton = styled.button`
     padding: 9px 12px;
     border-radius: 8px;
-    border: 1px solid ${(props) => props.theme.colors.lightBlue};
-    background-color: ${(props) => props.theme.colors.lighterBlue};
+    border: 1px solid ${({theme}) => theme.colors.lightBlue};
+    background-color: ${({theme}) => theme.colors.lighterBlue};
     color: white;
     font-size: 1.1rem;
     cursor: pointer;
@@ -95,7 +103,7 @@ export const SubmitButton = styled.button`
     justify-content: center;
 
     &:hover {
-        background-color: ${(props) => props.theme.colors.lightBlue};
+        background-color: ${({theme}) => theme.colors.lightBlue};
     }
 
     &:disabled {
@@ -112,7 +120,7 @@ export const ErrorText = styled.p`
     color: #dc2626;
     font-size: 0.9rem;
     margin-top: 4px;
-    margin-left: 8px;
+    margin-left: 5rem;
 `;
 
 export const Dropdown = styled.select`
@@ -120,9 +128,12 @@ export const Dropdown = styled.select`
     margin: 1rem auto;
     padding: 0.5rem 1rem;
     border-radius: 8px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid ${({theme}) => theme.colors.lightBlue};
+    background-color: ${({theme}) => theme.colors.lighterBlue};
+    color: ${(props) => props.theme.colors.textSecondary};
     font-size: 1rem;
     cursor: pointer;
+    position: relative;
 `;
 
 export const ButtonRow = styled.div`
@@ -131,5 +142,17 @@ export const ButtonRow = styled.div`
     justify-content: center;
     gap: 12px;
     margin: 1rem 0;
+`;
+
+export const MainFuncionalities = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    @media (max-width: ${breakpoints.tablet}px) and (min-width: ${breakpoints.mobile}px) {
+        flex-direction: row;
+        gap:10px
+    }
 `;
 

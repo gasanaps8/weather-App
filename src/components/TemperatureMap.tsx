@@ -5,9 +5,9 @@ import 'leaflet.heat';
 import type { ForecastItem } from '../types/weather';
 
 interface TemperatureMapProps {
-  cityLat: number;
-  cityLng: number;
-  forecast: ForecastItem[];
+    cityLat: number;
+    cityLng: number;
+    forecast: ForecastItem[];
 }
 
 const TemperatureMap: React.FC<TemperatureMapProps> = ({ cityLat, cityLng, forecast }) => {
@@ -47,7 +47,7 @@ const TemperatureMap: React.FC<TemperatureMapProps> = ({ cityLat, cityLng, forec
         }, [cityLat, cityLng, forecast]);
 
 
-  return <div id="temperature-map" style={{ width: '100%', height: '400px', margin: '1rem 0' }} />;
+  return <div id="temperature-map" style={{ width: '100%', height: '400px', margin: '2rem 0',}} />;
 };
 
 export default TemperatureMap;

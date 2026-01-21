@@ -5,20 +5,24 @@ import TemperatureGraph from './TemperatureGraph';
 import type { Forecast } from '../types/forecast';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import { breakpoints } from '../styles/GlobalStyle';
+import logo from '../assets/logo.png';
 
 import {
     Container,
-    Title,
+    LogoImg,
     Button,
     GeneralInfoContainer,
     GeneralInfo,
-    FormContainer, 
+    FormContainer,
     InputRow,
     CityField, 
     SubmitButton,
     ErrorText,
     Dropdown,
     ButtonRow,
+    MainFuncionalities,
 } from '../styles/CitySearch.styles';
 import DailyForecast from './DailyForecast';
 import TemperatureMap from './TemperatureMap';
@@ -48,22 +52,26 @@ interface ApiError {
 
 const CitySchema = Yup.object().shape({
   city: Yup.string()
-    .required("City is required")
+    .required('City is required')
     .min(2, 'Too Short!')
     .max(50, 'Too Long!')
-    .matches(/^[A-Za-z\s]+$/, "City name must contain only letters"),
-    
+    .matches(
+      /^[\p{L}\s]+$/u,
+      'City name must contain only letters'
+    ),
 });
 
 const CitySearch: React.FC = () => {
+
+    const isMobile = useMediaQuery(`(max-width: ${breakpoints.tablet}px)`);
+
     const [forecast, setForecast] = useState<Forecast | null>(null);
-    const [showForecast, setShowForecast] = useState(false);
-    const [showGraph, setShowGraph] = useState(false);
-    const [showDaily, setShowDaily] = useState(false);
-    const [showMap, setShowMap] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [unit, setUnit] = useState<TempUnit>('C');
+
+    type ViewType = 'forecast' | 'graph' | 'daily' | 'map' | null;
+    const [activeView, setActiveView] = useState<ViewType>(null);
 
     const convertTemp = (kelvin: number, unit: TempUnit) => {
         return unit === 'C'
@@ -71,12 +79,14 @@ const CitySearch: React.FC = () => {
         : (kelvin - 273.15) * 9 / 5 + 32;
     };
 
+    const handleLogoClick = () => {
+        window.location.reload();
+    };
+
     const handleLoadForecast = async (city: string) => {
         setLoading(true);
         setError(null);
         setForecast(null);
-        setShowForecast(false);
-        setShowGraph(false);
 
         try {
             const data = await getWeatherForecast(city);
@@ -101,127 +111,134 @@ const CitySearch: React.FC = () => {
     };
 
     return (
-        <Container>
-        <Title>Weather App</Title>
-
-        <Formik
-            initialValues={{
-                city: '',
-            }}
-            validationSchema={CitySchema}
-            onSubmit={async (values, { setSubmitting }) => {
-                await handleLoadForecast(values.city);
-                setSubmitting(false);
-            }}
-        >
-            {({ errors, touched }) => (
-                <FormContainer>
-                    <InputRow>
-                        <CityField
-                            type="text"
-                            name="city"
-                            placeholder="Enter city name"
-                        />
-                        <SubmitButton  type="submit" disabled={loading}>
-                            <SearchIcon />
-                        </SubmitButton >
-                    </InputRow>
-
-                    {errors.city && touched.city && (
-                        <ErrorText>{errors.city}</ErrorText>
-                    )}
-
-                    {error && <ErrorText>{error}</ErrorText>}
-
-                </FormContainer>
-             )}
-        </Formik>
         
-        {!error && forecast && (
-            <>
-            <GeneralInfoContainer>
+        <Container>
+            <LogoImg src={logo} alt="Weather App Logo" onClick={handleLogoClick} />
+
+            <Formik
+                initialValues={{
+                    city: '',
+                }}
+                validationSchema={CitySchema}
+                onSubmit={async (values, { setSubmitting }) => {
+                    await handleLoadForecast(values.city);
+                    setSubmitting(false);
+                }}
+            >
+                {({ errors, touched }) => (
+                    <FormContainer>
+                        <InputRow>
+                            <CityField
+                                type="text"
+                                name="city"
+                                placeholder="Enter city name"
+                            />
+                            <SubmitButton  type="submit" disabled={loading}>
+                                <SearchIcon />
+                            </SubmitButton >
+                        </InputRow>
+
+                        {errors.city && touched.city && (
+                            <ErrorText>{errors.city}</ErrorText>
+                        )}
+
+                        {error && <ErrorText>{error}</ErrorText>}
+
+                    </FormContainer>
+                )}
+            </Formik>
+            
+            {!error && forecast && (
+                <>
+                <GeneralInfoContainer>
+                    <GeneralInfo>
+                        {forecast.location.name}, {forecast.location.country}
+                    </GeneralInfo>
+
+                    <GeneralInfo>
+                        {forecast.list[0]
+                        ? `${convertTemp(
+                            forecast.list[0].main.temp,
+                            unit
+                            ).toFixed(1)}°${unit}`
+                        : '--'}
+                    </GeneralInfo>
+                </GeneralInfoContainer>
+
                 <GeneralInfo>
-                    {forecast.location.name}, {forecast.location.country}
+                        {forecast.list[0].weather.description}
                 </GeneralInfo>
 
                 <GeneralInfo>
-                    {forecast.list[0]
-                    ? `${convertTemp(
-                        forecast.list[0].main.temp,
-                        unit
-                        ).toFixed(1)}°${unit}`
-                    : '--'}
+                    <img
+                    src={`https://openweathermap.org/img/wn/${forecast.list[0].weather.icon}.png`}
+                    alt={forecast.list[0].weather.description}
+                    width={40}
+                    height={40}
+                    />
                 </GeneralInfo>
-            </GeneralInfoContainer>
 
-            <GeneralInfo>
-                    {forecast.list[0].weather.description}
-            </GeneralInfo>
+                <MainFuncionalities>
+                    <Dropdown value={unit} onChange={handleUnitChange}>
+                        <option value="C">Celsius (°C)</option>
+                        <option value="F">Fahrenheit (°F)</option>
+                    </Dropdown>
 
-            <Dropdown value={unit} onChange={handleUnitChange}>
-                <option value="C">Celsius (°C)</option>
-                <option value="F">Fahrenheit (°F)</option>
-            </Dropdown>
+                    {!isMobile && (
+                        <ButtonRow>
+                            <Button onClick={() => setActiveView(activeView === 'forecast' ? null : 'forecast')}>
+                            3H Forecast
+                            </Button>
 
-            <ButtonRow>
-                <Button onClick={() => {
-                    setShowForecast(prev => !prev);
-                    setShowGraph(false);
-                    setShowDaily(false);
-                    setShowMap(false);
-                }}>
-                    {showForecast ? 'Hide 3H Forecast' : 'Show 3H Forecast'}
-                </Button>
+                            <Button onClick={() => setActiveView(activeView === 'graph' ? null : 'graph')}>
+                            Temperature Graph
+                            </Button>
 
-                <Button onClick={() => {
-                    setShowGraph(prev => !prev);
-                    setShowForecast(false);
-                    setShowDaily(false);
-                    setShowMap(false);
-                }}>
-                    {showGraph ? 'Hide Temperature Graph' : 'Show Temperature Graph'}
-                </Button>
+                            <Button onClick={() => setActiveView(activeView === 'daily' ? null : 'daily')}>
+                            Daily Forecast
+                            </Button>
 
-                <Button onClick={() => {
-                    setShowDaily(prev => !prev);
-                    setShowForecast(false);
-                    setShowGraph(false);
-                    setShowMap(false);
-                }}>
-                    {showDaily ? 'Hide Daily Forecast' : 'Show Daily Forecast'}
-                </Button>
+                            <Button onClick={() => setActiveView(activeView === 'map' ? null : 'map')}>
+                            Temperature Map
+                            </Button>
+                        </ButtonRow>
+                    )}
+                    {isMobile && (
+                        <Dropdown
+                            value={activeView ?? ''}
+                            onChange={(e) => setActiveView(e.target.value as ViewType)}
+                        >
+                            <option value="">Select view</option>
+                            <option value="forecast">3H Forecast</option>
+                            <option value="graph">Temperature Graph</option>
+                            <option value="daily">Daily Forecast</option>
+                            <option value="map">Temperature Map</option>
+                        </Dropdown>
+                    )}
+                </MainFuncionalities>
+                </>
+            )}
 
-                <Button onClick={() => {
-                    setShowMap(prev => !prev);
-                    setShowForecast(false);
-                    setShowGraph(false);
-                    setShowDaily(false);
-                }}>
-                    {showMap? 'Hide Temperature Map' : 'Show Temperature Map'}
-                </Button>
-            </ButtonRow>
-            </>
-        )}
+            {forecast && activeView === 'forecast' && (
+                <ForecastHourlyList items={forecast.list} unit={unit} />
+                )}
 
-        {!error && forecast && showForecast && (
-            <ForecastHourlyList items={forecast.list} unit={unit} />
-        )}
+                {forecast && activeView === 'graph' && (
+                <TemperatureGraph items={forecast.list} unit={unit} />
+                )}
 
-        {!error && forecast && showGraph && (
-            <TemperatureGraph items={forecast.list} unit={unit} />
-        )}
+                {forecast && activeView === 'daily' && (
+                <DailyForecast items={forecast.list} unit={unit} />
+                )}
 
-        {!error && forecast && showDaily && (
-            <DailyForecast items={forecast.list} unit={unit} />
-        )}
+                {forecast && activeView === 'map' && (
+                <TemperatureMap
+                    cityLat={forecast.location.lat}
+                    cityLng={forecast.location.lon}
+                    forecast={forecast.list}
+                />
+            )}
 
-        {!error && forecast && showMap &&(
-            <TemperatureMap
-                cityLat={forecast.location.lat}
-                cityLng={forecast.location.lon}
-                forecast={forecast.list}
-            />
-        )}
         </Container>
     );
 };
